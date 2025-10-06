@@ -1,25 +1,40 @@
 ﻿networks:
   apps:
     external: true
-
-services:
-  gateway:
-    image: gateway
-    build:
-      context: .
-      dockerfile: src/gateway/Gateway/Dockerfile
-    restart: unless-stopped
-    container_name: gateway
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://0.0.0.0:8080
-    expose: 
+  
+  services:
+    ui:
+      image: ui
+      build:
+        context: .
+        dockerfile: src/web/home/Dockerfile
+      restart: unless-stopped
+      container_name: ui
+      environment:
+      ports:
+        - "3000:3000"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ui.rule=Host(`home.marcel-sigl.dev`)"
+        - "traefik.http.routers.ui.entrypoints=web"
+        - "traefik.http.services.ui.loadbalancer.server.port=3000"
+      networks: [ apps ]
+    
+    gateway:
+      image: gateway
+      build:
+        context: .
+        dockerfile: src/gateway/Gateway/Dockerfile
+      restart: unless-stopped
+      container_name: gateway
+      environment:
+        ASPNETCORE_ENVIRONMENT: Production
+        ASPNETCORE_URLS: http://0.0.0.0:8080
+      expose:
         - "8080"
-    labels: 
+      labels:
         - "traefik.enable=true"
         - "traefik.http.routers.gateway.rule=Host(`apps.marcel-sigl.dev`)"
         - "traefik.http.routers.gateway.entrypoints=web"
         - "traefik.http.services.gateway.loadbalancer.server.port=8080"
-    networks: [apps] 
-            
-
+      networks: [ apps ] 
