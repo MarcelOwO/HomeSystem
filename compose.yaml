@@ -2,11 +2,13 @@
   ui:
     image: ui
     build:
-      context: .
-      dockerfile: src/web/home/Dockerfile
+      context: ./src/web/home
+      dockerfile: Dockerfile
     restart: unless-stopped
     container_name: ui
-    environment: [ ]
+    environment: 
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: production
     expose:
       - "3000"
     labels:
