@@ -1,0 +1,28 @@
+name: Deploy on push
+
+on:
+  push:
+    branches: [ master ]   # change to main if needed
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux]  # matches your runner labels
+    defaults:
+      run:
+        shell: bash
+        working-directory: .       # set to your compose folder if not repo root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build images
+        run: docker compose build --pull
+
+      - name: Recreate containers
+        run: docker compose up -d --remove-orphans
+
+      - name: Clean dangling layers (optional)
+        run: docker image prune -f
