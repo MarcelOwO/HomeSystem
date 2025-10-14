@@ -1,6 +1,5 @@
 using System.Text;
 using AuthService.Data;
-using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

@@ -1,4 +1,3 @@
-using AuthService.Models;
 
 namespace UserService.Models;
 
