@@ -12,7 +12,7 @@
       - "traefik.http.routers.ui.rule=Host(`home.marcel-sigl.dev`)"
       - "traefik.http.routers.ui.entrypoints=web"
       - "traefik.http.services.ui.loadbalancer.server.port=3000"
-    networks: [ proxy ]
+    networks: [ proxy, internal ]
   
   gateway:
     build:
@@ -22,12 +22,7 @@
     restart: unless-stopped
     env_file:
       - .env
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.gateway.rule=Host(`api.marcel-sigl.dev`)"
-      - "traefik.http.routers.gateway.entrypoints=web"
-      - "traefik.http.services.gateway.loadbalancer.server.port=8080"
-    networks: [ proxy, internal ]
+    networks: [ internal ]
   
   adminservice:
     build:
@@ -43,6 +38,8 @@
       dockerfile: src/services/user/UserService/Dockerfile
     container_name: userservice
     restart: unless-stopped
+    env_file:
+      - .env
     networks: [ internal ]
   
   authservice:
@@ -64,6 +61,15 @@
     container_name: userdb
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - userdb_data:/var/lib/postgresql/data
     networks: [ internal ]
@@ -79,7 +85,7 @@
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL","pg_isready -U homesystem" ]
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
