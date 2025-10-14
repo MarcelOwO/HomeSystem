@@ -1,42 +1,104 @@
 ﻿services:
   ui:
-    image: ui
     build:
       context: ./src/web/home
       dockerfile: Dockerfile
-    restart: unless-stopped
     container_name: ui
-    environment: 
-      NEXT_TELEMETRY_DISABLED: "1"
-      NODE_ENV: production
-    expose:
-      - "3000"
+    restart: unless-stopped
+    env_file:
+      - .env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ui.rule=Host(`home.marcel-sigl.dev`)"
       - "traefik.http.routers.ui.entrypoints=web"
       - "traefik.http.services.ui.loadbalancer.server.port=3000"
-    networks: [ proxy ]
-    
+    networks: [ proxy, internal ]
+  
   gateway:
-    image: gateway
     build:
       context: .
       dockerfile: src/gateway/Gateway/Dockerfile
-    restart: unless-stopped
     container_name: gateway
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks: [ internal ]
+  
+  adminservice:
+    build:
+      context: .
+      dockerfile: src/services/admin/AdminService/Dockerfile
+    container_name: adminservice
+    restart: unless-stopped
+    networks: [ internal ]
+
+  userservice:
+    build:
+      context: .
+      dockerfile: src/services/user/UserService/Dockerfile
+    container_name: userservice
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks: [ internal ]
+  
+  authservice:
+    build:
+      context: .
+      dockerfile: src/services/auth/AuthService/Dockerfile
+    container_name: authservice
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      authdb:
+        condition: service_healthy
+    networks: [ internal ]
+  
+  userdb:
+    image: postgres:17
+    restart: unless-stopped
+    container_name: userdb
+    env_file:
+      - .env
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://0.0.0.0:8080
-    expose:
-      - "8080"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.gateway.rule=Host(`api.marcel-sigl.dev`)"
-      - "traefik.http.routers.gateway.entrypoints=web"
-      - "traefik.http.services.gateway.loadbalancer.server.port=8080"
-    networks: [ proxy ]
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - userdb_data:/var/lib/postgresql/data
+    networks: [ internal ]
+  
+  authdb:
+    image: postgres:17
+    restart: unless-stopped
+    container_name: authdb
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - authdb_data:/var/lib/postgresql/data
+    networks: [ internal ]
+
+volumes:
+  userdb_data:
+  authdb_data:
 
 networks:
   proxy:
     external: true
+  internal:
+    driver: bridge
