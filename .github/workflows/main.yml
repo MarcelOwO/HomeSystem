@@ -10,13 +10,14 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: .       # set to your compose folder if not repo root
+        working-directory: /srv/apps/HomeSystem       # set to your compose folder if not repo root
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: /srv/apps/HomeSystem
 
       - name: Build images
         run: docker compose build --pull
