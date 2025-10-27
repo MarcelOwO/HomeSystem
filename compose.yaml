@@ -5,15 +5,17 @@
       dockerfile: Dockerfile
     container_name: ui
     restart: unless-stopped
+    expose:
+      - "5173"
     env_file:
       - .env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ui.rule=Host(`home.marcel-sigl.dev`)"
       - "traefik.http.routers.ui.entrypoints=web"
-      - "traefik.http.services.ui.loadbalancer.server.port=3000"
-    networks: [ proxy, internal ]
-  
+      - "traefik.http.services.ui.loadbalancer.server.port=5173"
+    networks: [proxy, internal]
+
   gateway:
     build:
       context: .
@@ -22,15 +24,15 @@
     restart: unless-stopped
     env_file:
       - .env
-    networks: [ internal ]
-  
+    networks: [internal]
+
   adminservice:
     build:
       context: .
       dockerfile: src/services/admin/AdminService/Dockerfile
     container_name: adminservice
     restart: unless-stopped
-    networks: [ internal ]
+    networks: [internal]
 
   userservice:
     build:
@@ -40,8 +42,8 @@
     restart: unless-stopped
     env_file:
       - .env
-    networks: [ internal ]
-  
+    networks: [internal]
+
   authservice:
     build:
       context: .
@@ -53,8 +55,8 @@
     depends_on:
       authdb:
         condition: service_healthy
-    networks: [ internal ]
-  
+    networks: [internal]
+
   userdb:
     image: postgres:17
     restart: unless-stopped
@@ -66,14 +68,14 @@
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     healthcheck:
-      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - userdb_data:/var/lib/postgresql/data
-    networks: [ internal ]
-  
+    networks: [internal]
+
   authdb:
     image: postgres:17
     restart: unless-stopped
@@ -85,13 +87,13 @@
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - authdb_data:/var/lib/postgresql/data
-    networks: [ internal ]
+    networks: [internal]
 
 volumes:
   userdb_data:
@@ -102,3 +104,4 @@ networks:
     external: true
   internal:
     driver: bridge
+
