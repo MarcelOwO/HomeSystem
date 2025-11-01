@@ -4,17 +4,17 @@ export default function Navbar() {
   const links = [
     { to: "/", label: "Home" },
     { to: "/projects", label: "Projects" },
-    { to: "/about", label: "About" },
-    { to: "/contact", label: "Contact" },
-    { to: "/dashboard", label: "Dashboard" }
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/blog", label: "Blog" },
+    { to: "/login", label: "Login" }
   ];
 
   return (
-    <nav>
-      <ul className="flex flex-row gap-2">
+    <nav className="fixed top-0 right-0 left-0 m-10 bg-gray-900 outline-1 outline-gray-600 rounded-4xl p-2">
+      <ul className="flex flex-row gap-2 m-2 p-2">
         {links.map(({ to, label }) => (
           <li key={to}>
-            <NavLink className="outline-2 outline-gray-100 rounded-2xl mx-2 "
+            <NavLink className="outline-1 outline-gray-600 rounded-4xl m-2 p-2 "
               to={to}
             >
               {label}

@@ -7,8 +7,32 @@ export function meta({ }: Route.MetaArgs) {
   ];
 }
 
+
 export default function Home() {
-  return <div>
-    OwO
+
+  const links = [
+    { label: "Discord", Icon: "", link: "" },
+    { label: "Telegram", Icon: "", link: "" },
+    { label: "Steam", Icon: "", link: "" },
+    { label: "Barq", Icon: "", link: "" },
+    { label: "Furtrack", Icon: "", link: "" },
+    { label: "Instagram", Icon: "", link: "" },
+    { label: "Furaffinity", Icon: "", link: "" },
+    { label: "Twitter", Icon: "", link: "" },
+    { label: "BlueSky", Icon: "", link: "" },
+  ];
+  return <div className="flex flex-row gap-10 items-center">
+    <div className="flex flex-col gap-10 items-center">
+      <h2>Welcome to my Homepage</h2>
+      <img className="max-w-3/12 rounded-4xl" src="owo.jpg" />
+    </div>
+
+    <div className="flex flex-col items-center gap-2">
+      {links.map(({ label, icon, link }) =>
+        <div className="max-w-2xl outline-1 outline-gray-600 rounded-4xl p-2">
+          {label}
+        </div>
+      )}
+    </div>
   </div>;
 }

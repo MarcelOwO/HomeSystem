@@ -13,30 +13,38 @@ builder.Configuration.AddEnvironmentVariables();
 
 var config = builder.Configuration;
 
-var connectionString = $"Host={config["AUTH_DB_HOST"] ?? "localhost"};" +
-                       $"Database={config["POSTGRES_DB"]};" +
-                       $"Username={config["POSTGRES_USER"]};" +
-                       $"Password={config["POSTGRES_PASSWORD"]}";
+var connectionString =
+    $"Host={config["AUTH_DB_HOST"] ?? "localhost"};"
+    + $"Database={config["POSTGRES_DB"]};"
+    + $"Username={config["POSTGRES_USER"]};"
+    + $"Password={config["POSTGRES_PASSWORD"]}";
 
-builder.Services.AddDbContext<AuthDbContext>(options => { options.UseNpgsql(connectionString); });
+builder.Services.AddDbContext<AuthDbContext>(options =>
+{
+    options.UseNpgsql(connectionString);
+});
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder
+    .Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     {
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = true;
         options.Password.RequireLowercase = true;
+        options.SignIn.RequireConfirmedEmail = true;
     })
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<AuthDbContext>();
 
-builder.Services.AddAuthentication()
+builder
+    .Services.AddAuthentication()
     .AddJwtBearer(options =>
     {
-        var jwtKey = config["JWT_KEY"]
-                     ?? throw new InvalidOperationException("JWT_KEY is not configured");
+        var jwtKey =
+            config["JWT_KEY"] ?? throw new InvalidOperationException("JWT_KEY is not configured");
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -46,8 +54,7 @@ builder.Services.AddAuthentication()
             ValidateIssuerSigningKey = true,
             ValidIssuer = config["JWT_ISSUER"],
             ValidAudience = config["JWT_AUDIENCE"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         };
     });
 
@@ -63,7 +70,9 @@ using (var scope = app.Services.CreateScope())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
 
 app.Run();
+

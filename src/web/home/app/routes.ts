@@ -4,9 +4,6 @@ export default [
   index("routes/home.tsx"),
   route("blog", "./routes/blog.tsx"),
   route("projects", "./routes/projects.tsx"),
-  route("about", "./routes/about.tsx"),
-  route("contact", "./routes/contact.tsx"),
-  route("projects", "./routes/projects.tsx"),
 
   layout("routes/auth/layout.tsx", [
     route("register", "./routes/auth/register.tsx"),
@@ -16,8 +13,11 @@ export default [
     route("verify-email", "./routes/auth/verify-email.tsx")
   ]),
   layout("routes/dashboard/layout.tsx", [
-    route("dashboard", "./routes/dashboard/dashboard.tsx"),
-    route("user", "./routes/dashboard/user.tsx"),
-    route("admin", "./routes/dashboard/admin.tsx"),
+    route("dashboard", "routes/dashboard/dashboard.tsx"),
+    route("naming", "routes/dashboard/naming.tsx"),
+    route("user", "routes/dashboard/user.tsx"),
+    route("admin", "routes/dashboard/admin.tsx"),
+    route("settings", "routes/dashboard/settings.tsx"),
+
   ]),
 ] satisfies RouteConfig;

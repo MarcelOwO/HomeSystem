@@ -24,7 +24,13 @@
     restart: unless-stopped
     env_file:
       - .env
-    networks: [internal]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui.rule=Host(`gateway.marcel-sigl.dev`)"
+      - "traefik.http.routers.ui.entrypoints=web"
+      - "traefik.http.services.ui.loadbalancer.server.port=8080"
+
+    networks: [proxy, internal]
 
   adminservice:
     build:
@@ -104,4 +110,3 @@ networks:
     external: true
   internal:
     driver: bridge
-
