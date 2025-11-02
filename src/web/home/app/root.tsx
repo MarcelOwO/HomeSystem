@@ -13,6 +13,10 @@ import Navbar from "./components/Navbar"
 import type { Route } from "./+types/root";
 import "./app.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient()
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -36,13 +40,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Navbar />
-        <div className="m-10 mt-40 p-10 outline-1 outline-gray-600 rounded-4xl">
-          {children}
-        </div>
-        <Footer />
-        <ScrollRestoration />
-        <Scripts />
+        <QueryClientProvider client={queryClient}>
+          <Navbar />
+          <div className="m-10 mt-40 p-10 outline-1 outline-gray-600 rounded-4xl">
+            {children}
+          </div>
+          <Footer />
+          <ScrollRestoration />
+          <Scripts />
+        </QueryClientProvider>
       </body>
     </html>
   );

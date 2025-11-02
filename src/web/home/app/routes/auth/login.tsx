@@ -2,9 +2,6 @@ import { NavLink, useNavigate } from "react-router";
 import { AuthApi } from "~/api/auth";
 import { useState } from 'react';
 
-
-
-
 export default function Login() {
 
   const navigate = useNavigate();
