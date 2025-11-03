@@ -26,9 +26,9 @@
       - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ui.rule=Host(`gateway.marcel-sigl.dev`)"
-      - "traefik.http.routers.ui.entrypoints=web"
-      - "traefik.http.services.ui.loadbalancer.server.port=8080"
+      - "traefik.http.routers.gateway.rule=Host(`gateway.marcel-sigl.dev`)"
+      - "traefik.http.routers.gateway.entrypoints=web"
+      - "traefik.http.services.gateway.loadbalancer.server.port=8080"
 
     networks: [proxy, internal]
 
@@ -109,4 +109,5 @@ networks:
   proxy:
     external: true
   internal:
+    external: true
     driver: bridge
